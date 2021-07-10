@@ -10,17 +10,32 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 	Exit
 }
 
-function Install-Chocolatey {
-    [System.Net.WebRequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-    if($?) { Write-Host "Chocolatey is installed" }
-    else { Write-Host "Chocolatey install failed." }
-}
+# GUI Specs
+Write-Host "Checking winget..."
 
-function choco {
-    if( !(Test-Path -Path C:\ProgramData\chocolatey\bin\choco.exe) ) {
-        Install-Chocolatey
-    }
-    Start-Process C:\ProgramData\chocolatey\bin\choco.exe -NoNewWindow -ArgumentList "${args} -y --ignore-checksums" | Out-Host
+Try{
+	# Check if winget is already installed
+	$er = (invoke-expression "winget -v") 2>&1
+	if ($lastexitcode) {throw $er}
+	Write-Host "winget is already installed."
+}
+Catch{
+	# winget is not installed. Install it from the Github release
+	Write-Host "winget is not found, installing it right now."
+	
+	$download = "https://github.com/microsoft/winget-cli/releases/download/v1.0.11692/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+	$output = $PSScriptRoot + "\winget-latest.appxbundle"
+	Write-Host "Dowloading latest release"
+	Invoke-WebRequest -Uri $download -OutFile $output
+	
+	Write-Host "Installing the package"
+	Add-AppxPackage -Path $output
+}
+Finally {
+	# Start installing the packages with winget
+	#Get-Content .\winget.txt | ForEach-Object {
+	#	iex ("winget install -e " + $_)
+	#}
 }
 
 $Form                            = New-Object system.Windows.Forms.Form
@@ -403,90 +418,108 @@ $Panel3.controls.AddRange(@($essentialundo,$EActionCenter,$ECortana,$RBackground
 
 $brave.Add_Click({
     Write-Host "Installing Brave Browser"
-    choco install Brave
+    winget install BraveSoftware.BraveBrowser | Out-Host
+    if($?) { Write-Host "Installed Brave Browser" }
 })
 
 $firefox.Add_Click({
     Write-Host "Installing Firefox"
-    choco install Firefox
+    winget install Mozilla.Firefox | Out-Host
+    if($?) { Write-Host "Installed Firefox" }
 })
 
 $gchrome.Add_Click({
     Write-Host "Installing Google Chrome"
-    choco install GoogleChrome
+    winget install Google.Chrome | Out-Host
+    if($?) { Write-Host "Installed Google Chrome" }
 })
 
 $irfanview.Add_Click({
     Write-Host "Installing Irfanview (Image Viewer)"
-    choco install IrfanView
+    winget install IrfanSkiljan.IrfanView | Out-Host
+    if($?) { Write-Host "Installed Irfanview (Image Viewer)" }
 })
 $imageglass.Add_Click({
     Write-Host "Installing Image Glass (Image Viewer)"
-    choco install imageglass
+    winget install DuongDieuPhap.ImageGlass | Out-Host
+    if($?) { Write-Host "Installed Image Glass (Image Viewer)" }
 })
 $honeyview.Add_Click({
     Write-Host "Installing Bandisoft Honeyview (Image Viewer)"
-    choco install honeyview
+    winget install Bandisoft.Honeyview | Out-Host
+    if($?) { Write-Host "Installed Honeyview (Image Viewer)" }
 })
 
 $adobereader.Add_Click({
     Write-Host "Installing Adobe Reader DC"
-    choco install adobereader
+    winget install Adobe.AdobeAcrobatReaderDC | Out-Host
+    if($?) { Write-Host "Installed Adobe Reader DC" }
 })
 
 $notepad.Add_Click({
     Write-Host "Installing Notepad++"
-    choco install notepadplusplus
+    winget install Notepad++.Notepad++ | Out-Host
+    if($?) { Write-Host "Installed Notepad++" }
 })
 
 $vlc.Add_Click({
     Write-Host "Installing VLC Media Player"
-    choco install vlc
+    winget install VideoLAN.VLC | Out-Host
+    if($?) { Write-Host "Installed VLC Media Player" }
 })
 
 $mpc.Add_Click({
     Write-Host "Installing Media Player Classic"
-    choco install mpc-be
+    winget install clsid2.mpc-hc | Out-Host
+    if($?) { Write-Host "Installed Media Player Classic" }
 })
 
 $7zip.Add_Click({
     Write-Host "Installing 7-Zip Compression Tool"
-    choco install 7zip
+    winget install 7zip.7zip | Out-Host
+    if($?) { Write-Host "Installed 7-Zip Compression Tool" }
 })
 
 $vscode.Add_Click({
     Write-Host "Installing Visual Studio Code"
-    choco install vscode
+    winget install Microsoft.VisualStudioCode | Out-Host
+    if($?) { Write-Host "Installed Visual Studio Code" }
 })
 
 $vscodium.Add_Click({
     Write-Host "Installing VS Codium"
-    choco install vscodium
+    winget install VSCodium.VSCodium | Out-Host
+    if($?) { Write-Host "Installed VS Codium" }
 })
 
 $winterminal.Add_Click({
     Write-Host "Installing New Windows Terminal"
-    choco install microsoft-windows-terminal
+    winget install Microsoft.WindowsTerminal | Out-Host
+    if($?) { Write-Host "Installed New Windows Terminal" }
 })
 
 $powertoys.Add_Click({
     Write-Host "Installing Microsoft PowerToys"
-    choco install powertoys
+    winget install Microsoft.PowerToys | Out-Host
+    if($?) { Write-Host "Installed Microsoft PowerToys" }
 })
 
 $everythingsearch.Add_Click({
     Write-Host "Installing Voidtools Everything Search"
-    choco install Everything
+    winget install voidtools.Everything | Out-Host
+    if($?) { Write-Host "Installed Everything Search" }
 })
 
 $sumatrapdf.Add_Click({
     Write-Host "Installing Sumatra PDF"
-    choco install sumatrapdf
+    winget install SumatraPDF.SumatraPDF | Out-Host
+    if($?) { Write-Host "Installed Sumatra PDF" }
 })
 
 $openshell.Add_Click({
     Write-Host "Installing OpenShell (Old Windows menu)"
-    choco install open-shell
+    winget install openshellmenu | Out-Host
+    Write-Host "Installed OpenShell"
 })
 
 $essentialtweaks.Add_Click({
